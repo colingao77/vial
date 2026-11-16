@@ -1,10 +1,18 @@
-# Rebuild the PEP 503 index on GitHub Pages whenever a release changes.
+# Rebuild the PEP 503 index on GitHub Pages on every push to main.
 # Output: https://colingao77.github.io/vial/simple  (Settings, Pages, Source: GitHub Actions)
+#
+# Why push and not the release event: actions/deploy-pages identifies a deployment by the
+# run's commit SHA (issue actions/deploy-pages#383). A release adds no commit, so a second
+# deployment from the same SHA is treated as already live and the old index keeps being
+# served. The publisher (kitbag's release workflow) therefore records every release as
+# releases/<tag>.sha256 on main; that push is what rebuilds the index with a fresh SHA.
+# A manual run on an already-deployed SHA hits the same bug: to force a rebuild, push a
+# commit (an empty one is fine) instead.
 name: pages-index
 
 on:
-  release:
-    types: [published, edited, deleted]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
